@@ -56,49 +56,63 @@ struct ContentView: View {
     }
     
     var body: some View {
-        VStack {
-            Text("Points Slip")
-                .font(.headline)
-            
-            List {
-                ForEach(labels.indices, id: \.self) { index in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(labels[index])
-                                .font(.caption2)
-                            if index == 0 {
-                                Text("Bonus: +25 per 50 pages")
-                                    .font(.footnote)
-                                    .foregroundColor(.gray)
+        NavigationStack {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    ForEach(labels.indices, id: \.self) { index in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(labels[index])
+                                    .font(.caption2)
+                                if index == 0 {
+                                    Text("Bonus: +25 per 50 pages")
+                                        .font(.footnote)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                            Spacer()
+                            HStack(spacing: 4) {
+                                Button {
+                                    if counts[index] > 0 {
+                                        counts[index] -= 1
+                                        saveCounts()
+                                    }
+                                } label: {
+                                    Image(systemName: "minus.circle.fill")
+                                        .foregroundColor(.red)
+                                        .font(.title3)
+                                }
+                                Text("\(counts[index])")
+                                    .frame(minWidth: 30)
+                                Button {
+                                    counts[index] += 1
+                                    saveCounts()
+                                } label: {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(.green)
+                                        .font(.title3)
+                                }
                             }
                         }
-                        Spacer()
-                        Stepper(value: $counts[index], in: 0...10_000, step: 1) {
-                            Text("\(counts[index])")
-                        }
-                        .onChange(of: counts[index]) {
-                            saveCounts()
-                        }
+                        .padding(.vertical, 4)
+                    }
+                    
+                    Divider()
+                    
+                    Button(role: .destructive) {
+                        resetCounts()
+                    } label: {
+                        Label("Reset All", systemImage: "arrow.counterclockwise")
                     }
                 }
+                .padding(.horizontal)
             }
-            
-            VStack(spacing: 4) {
-                Text("Total Points")
-                    .font(.footnote)
-                Text("\(totalPoints)")
-                    .font(.title2)
-                    .bold()
-                    .foregroundColor(.accentColor)
-            }
-            
-            Button("Reset All", action: resetCounts)
-                .foregroundColor(.red)
+            .navigationTitle("Points: \(totalPoints)")
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
 }
+
